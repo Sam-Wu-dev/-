@@ -3,19 +3,19 @@ byte NUM = 8;   // 宣告使用幾顆 LED
 byte LED[] = {22, 24, 26, 28, 30, 32,34, 36};  // 宣告LED接腳I/O陣列
 byte LED1[] = {23, 25, 27, 29, 31, 33,35, 37};  // 宣告LED接腳I/O陣列
 int counter=0;
-byte i;
-int t=500;
+
+int delay_t=5;
 bool* ts=(bool*)malloc(sizeof(bool)*4);
 bool* hd=(bool*)malloc(sizeof(bool)*4);
 bool* te=(bool*)malloc(sizeof(bool)*4);
 bool* on=(bool*)malloc(sizeof(bool)*4);
 void setup() {
   // put your setup code here, to run once:
-  for (i=0; i<NUM; i++)
+  for (int i=0; i<NUM; i++)
   {  pinMode(LED[i], OUTPUT);  //設定接腳為輸出
      digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
      pinMode(LED1[i], OUTPUT);  //設定接腳為輸出
-     digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
+     digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED暗
   }
 }
 void decimal_to_binary(bool* arr,int num){
@@ -29,20 +29,19 @@ void decimal_to_binary(bool* arr,int num){
     num/=2;
   }
 }
-void all_down(){
-    for (i=0; i<NUM; i++)
+void reset_LED(){
+    for (int i=0; i<NUM; i++)
   {   //設定接腳為輸出
      digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
       //設定接腳為輸出
-     digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
+     digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED暗
   }
 }
-void loop() {
-  // put your main code here, to run repeatedly:
-  int thousand=counter/1000;
-  int hundred=(counter%1000)/100;
-  int tens=(counter%100)/10;
-  int one=(counter%10);
+void display_number_on_LED(int n){
+  int thousand=n/1000;
+  int hundred=(n%1000)/100;
+  int tens=(n%100)/10;
+  int one=(n%10);
   decimal_to_binary(ts,thousand);
   decimal_to_binary(hd,hundred);
   decimal_to_binary(te,tens);
@@ -59,8 +58,11 @@ void loop() {
   for(int i=0;i<4;i++){
     digitalWrite(LED1[3-i],!on[i]);
   }
-  delay(t);
-  all_down();
+}
+void loop() {
+  display_number_on_LED(counter);
+  delay(delay_t);
+  reset_LED();
   counter++;
   if(counter>9999){
     counter =0; 
