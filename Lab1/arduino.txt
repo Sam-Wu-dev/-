@@ -1,12 +1,9 @@
 byte NUM = 8;   // 宣告使用幾顆 LED
 byte LED[] = {22, 24, 26, 28, 30, 32,34, 36};  // 宣告LED接腳I/O陣列
 byte LED1[] = {23, 25, 27, 29, 31, 33,35, 37};  // 宣告LED接腳I/O陣列
-byte i; 
+byte i;
+
 int t=500;
-int top=0;
-int top_direction=1;
-int bottom=7;
-int bottom_direction=-1;
 int counter=0;
 
 // the setup function runs once when you press reset or power the board
@@ -18,81 +15,6 @@ void setup() {
      digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
   }
 
-}
-void top_blink(int i,int d){
-  digitalWrite(LED[i],1);
-  delay(d);
-  digitalWrite(LED[i],0);
-}
-void bottom_blink(int i,int d){
-  digitalWrite(LED1[i],0);
-  delay(d);
-  digitalWrite(LED1[i],1);
-}
-void both_blink(int top_i,int bottom_i,int d){
-  digitalWrite(LED1[bottom_i],0);
-  digitalWrite(LED[top_i],1);
-  delay(d);
-
-byte NUM = 8;   // 宣告使用幾顆 LED
-byte LED[] = {22, 24, 26, 28, 30, 32,34, 36};  // 宣告LED接腳I/O陣列
-byte LED1[] = {23, 25, 27, 29, 31, 33,35, 37};  // 宣告LED接腳I/O陣列
-byte i; 
-int t=500;
-int top=0;
-int top_direction=1;
-int bottom=7;
-int bottom_direction=-1;
-int counter=0;
-
-// the setup function runs once when you press reset or power the board
-void setup() {
-  for (i=0; i<NUM; i++)
-  {  pinMode(LED[i], OUTPUT);  //設定接腳為輸出
-     digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
-     pinMode(LED1[i], OUTPUT);  //設定接腳為輸出
-     digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
-  }
-
-}
-void top_blink(int i,int d){
-  digitalWrite(LED[i],1);
-  delay(d);
-  digitalWrite(LED[i],0);
-}
-void bottom_blink(int i,int d){
-  digitalWrite(LED1[i],0);
-  delay(d);
-  digitalWrite(LED1[i],1);
-}
-void both_blink(int top_i,int bottom_i,int d){
-  digitalWrite(LED1[bottom_i],0);
-  digitalWrite(LED[top_i],1);
-  delay(d);
-  digitalWrite(LED1[bottom_i],1);
-  digitalWrite(LED[top_i],0);
-}
-void top_plus(){
-  top+=top_direction;
-  if(top==8){
-    top_direction=6;
-    top_direction*=-1;
-  }
-  else if(top==-1){
-    top=1;
-    top_direction*=-1;
-  }
-}
-void bottom_plus(){
-  bottom+=bottom_direction;
-   if(bottom==8){
-    bottom_direction=6;
-    bottom_direction*=-1;
-  }
-  else if(bottom==-1){
-    bottom=1;
-    bottom_direction*=-1;
-  }
 }
 void decimal_to_binary(bool* arr,int num){
   int index=3;
