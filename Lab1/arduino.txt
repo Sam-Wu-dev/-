@@ -1,22 +1,28 @@
+#include <stdbool.h>  
 byte NUM = 8;   // 宣告使用幾顆 LED
 byte LED[] = {22, 24, 26, 28, 30, 32,34, 36};  // 宣告LED接腳I/O陣列
 byte LED1[] = {23, 25, 27, 29, 31, 33,35, 37};  // 宣告LED接腳I/O陣列
-byte i;
-
-int t=500;
 int counter=0;
-
-// the setup function runs once when you press reset or power the board
+byte i;
+int t=500;
+bool* ts=(bool*)malloc(sizeof(bool)*4);
+bool* hd=(bool*)malloc(sizeof(bool)*4);
+bool* te=(bool*)malloc(sizeof(bool)*4);
+bool* on=(bool*)malloc(sizeof(bool)*4);
 void setup() {
+  // put your setup code here, to run once:
   for (i=0; i<NUM; i++)
   {  pinMode(LED[i], OUTPUT);  //設定接腳為輸出
      digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
      pinMode(LED1[i], OUTPUT);  //設定接腳為輸出
      digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
   }
-
 }
 void decimal_to_binary(bool* arr,int num){
+  arr[0]=0;
+  arr[1]=0;
+  arr[2]=0;
+  arr[3]=0;
   int index=3;
   while(num>0){
     arr[index--]=num%2;
@@ -31,44 +37,28 @@ void all_down(){
      digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED亮
   }
 }
-// the loop function runs over and over again forever
 void loop() {
+  // put your main code here, to run repeatedly:
   int thousand=counter/1000;
   int hundred=(counter%1000)/100;
   int tens=(counter%100)/10;
   int one=(counter%10);
-  bool* ts=malloc(sizeof(bool)*4);
-  bool* hd=malloc(sizeof(bool)*4);
-  bool* te=malloc(sizeof(bool)*4);
-  bool* on=malloc(sizeof(bool)*4);
   decimal_to_binary(ts,thousand);
-  for(int i=0;i<4;i++){
-    if(ts[3-i]){
-      digitalWrite(LED[4+i],1);
-    }
-  }
   decimal_to_binary(hd,hundred);
-  for(int i=0;i<4;i++){
-    if(hd[3-i]){
-      digitalWrite(LED[i],1);
-    }  
-  }
   decimal_to_binary(te,tens);
-  for(int i=0;i<4;i++){
-    if(te[3-i]){
-       digitalWrite(LED1[4+i],0);
-    } 
-  }
   decimal_to_binary(on,one);
   for(int i=0;i<4;i++){
-    if(on[3-i]){
-      digitalWrite(LED1[i],0);
-    } 
+    digitalWrite(LED[7-i],ts[i]);
   }
-  free(ts);
-  free(hd);
-  free(te);
-  free(on);
+  for(int i=0;i<4;i++){
+    digitalWrite(LED[3-i],hd[i]); 
+  }
+  for(int i=0;i<4;i++){
+    digitalWrite(LED1[7-i],!te[i]);
+  }
+  for(int i=0;i<4;i++){
+    digitalWrite(LED1[3-i],!on[i]);
+  }
   delay(t);
   all_down();
   counter++;
