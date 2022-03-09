@@ -1,24 +1,35 @@
+/*
+  Date: 2022/3/8
+  Environment: Arduino IDE
+  Abstract:
+    Use a counter to control the current state.
+    Every loop print the number of counter on LED.
+*/
+
 #include <stdbool.h>  
+
 byte NUM = 8;   // 宣告使用幾顆 LED
 byte LED[] = {22, 24, 26, 28, 30, 32,34, 36};  // 宣告LED接腳I/O陣列
 byte LED1[] = {23, 25, 27, 29, 31, 33,35, 37};  // 宣告LED接腳I/O陣列
-int counter=0;
-
-int delay_t=5;
+int counter=0;// control variable
+int delay_t=5;// the delay time of every loop
 bool* ts=(bool*)malloc(sizeof(bool)*4);
 bool* hd=(bool*)malloc(sizeof(bool)*4);
 bool* te=(bool*)malloc(sizeof(bool)*4);
 bool* on=(bool*)malloc(sizeof(bool)*4);
+
 void setup() {
-  // put your setup code here, to run once:
-  for (int i=0; i<NUM; i++)
-  {  pinMode(LED[i], OUTPUT);  //設定接腳為輸出
+  for (int i=0; i<NUM; i++){  
+     // Initialize LED
+     pinMode(LED[i], OUTPUT);  //設定接腳為輸出
      digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
      pinMode(LED1[i], OUTPUT);  //設定接腳為輸出
      digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED暗
   }
 }
+
 void decimal_to_binary(bool* arr,int num){
+  // transfer an integer into a four bits array
   arr[0]=0;
   arr[1]=0;
   arr[2]=0;
@@ -29,14 +40,14 @@ void decimal_to_binary(bool* arr,int num){
     num/=2;
   }
 }
+
 void reset_LED(){
-    for (int i=0; i<NUM; i++)
-  {   //設定接腳為輸出
+  for (int i=0; i<NUM; i++){   
      digitalWrite(LED[i], 0);  //令接腳輸出低準位，LED暗
-      //設定接腳為輸出
      digitalWrite(LED1[i], 1);  //令接腳輸出高準位，LED暗
   }
 }
+
 void display_number_on_LED(int n){
   int thousand=n/1000;
   int hundred=(n%1000)/100;
@@ -59,7 +70,9 @@ void display_number_on_LED(int n){
     digitalWrite(LED1[3-i],!on[i]);
   }
 }
+
 void loop() {
+  // print the number of counter on LED
   display_number_on_LED(counter);
   delay(delay_t);
   reset_LED();
