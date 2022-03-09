@@ -1,27 +1,38 @@
+/*
+  Date: 2022/3/8
+  Environment: Arduino IDE
+  Goal:
+    Express time 0:00:0 ~ 9:59:9 on seven-segment display
+  Abstract process:
+    Use a four layers for-loop to control the current state.
+    Inside the for-loop we print the digits one by one with 
+    a very short delay time to make it looks synchronous.
+*/
+
 int col[]={47,49,51,53}; 
 int row[]={38,40,42,44,46,48,50,52};
-char TAB[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,
-    0x7f,0x6f};
+char TAB[]={0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f};
+
 void setup() 
 {
-  for(int i = 0;i <4;i++)
-     {
-      pinMode(col[i],OUTPUT);
-      digitalWrite(col[i],HIGH);
-     }
-  for(int j =0;j <8;j++)
-     { 
-      pinMode(row[j],OUTPUT);
-      digitalWrite(row[j],HIGH);
-     }
+  // Initialize seven-segment display
+  for(int i = 0;i <4;i++){
+    pinMode(col[i],OUTPUT);
+    digitalWrite(col[i],HIGH);
+  }
+  for(int j =0;j <8;j++){ 
+    pinMode(row[j],OUTPUT);
+    digitalWrite(row[j],HIGH);
+  }
 }
+
 void loop() 
 {
-  for(int i = 0;i < 10;i++ ){                           //4個for代表4個bit跑出來的數字(分鐘->秒->毫秒)
+  for(int i = 0;i < 10;i++){                       
     for(int j = 0;j < 6;j++){
       for(int k = 0;k < 10;k++){
         for(int l = 0;l < 10;l++){
-          
+          //4個for代表4個bit跑出來的數字(分鐘->秒->毫秒)
           int arr[4];
           arr[3]=  i;                                 
           arr[2] = j;
@@ -29,20 +40,17 @@ void loop()
           arr[0] = l;
           for(int b = 0;b < 4 ;b++){                  
             //從右到左顯示數字
-            digitalWrite(col[b] , LOW);//給low         
+            digitalWrite(col[b] , LOW);//開啟對應位址的七段顯示器
             for(int n = 0;n < 8;n++){
-              digitalWrite(row[n],~TAB[arr[b]]>>n & 0x01);//0~9顯示
+              //透過快速分段顯示來印出一個數字
+              digitalWrite(row[n],~TAB[arr[b]]>>n & 0x01);
             }
             delay(5);
-            digitalWrite(col[b] , HIGH);//跳下一顆 
+            digitalWrite(col[b] , HIGH);//關閉對應位址的七段顯示器       
           }
-           
         }  
       }  
     }    
   } 
-   
-   
-   
 }
 

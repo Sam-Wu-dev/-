@@ -1,9 +1,13 @@
 /*
   Date: 2022/3/8
   Environment: Arduino IDE
-  Abstract:
+  Goal:
+    Express number 0 ~ 9999 on LED
+  Abstract process:
     Use a counter to control the current state.
-    Every loop print the number of counter on LED.
+    loop:
+      1. transfer the counter into binary digits.
+      2. display the binary digits on LED to express the particular number.
 */
 
 #include <stdbool.h>  
