@@ -12,7 +12,7 @@ byte colPins[COLS] = {8,9,10,11};           //connect to the column pinouts of t
 //initialize an instance of class NewKeypad
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 //////////////////////////// 7段顯示器 設定部分 /////////////////////////////////////////////////////
-int col[]={47,49,51,53};
+int col[]={47,49,51,53};//右到左
 int row[]={38,40,42,44,46,48,50,52};
 int TAB[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,
     0x80,0x90,0x88,0x83,0xC6,0xA1,0x86,0x8E,0xC0,0x89}; 
@@ -31,33 +31,42 @@ void setup()
     pinMode(row[j],OUTPUT);
     digitalWrite(row[j],HIGH);
   }  
-////////////////7段顯示器 設定部分/////////////////////////////////////  
 }
-void print_now(){
-    for(int )
-    for(int k=0; k<8 ;k++){           
-      digitalWrite(row[k],TAB[n]>>k & 0x01);
-    } 
-    //Serial.println(c); 
-}
-char now[4]={'-','-','-','-'};
-int left_num=0;
-int right_num=0;
-bool is_left=1;
-bool has_op=0;
+
+int now[4]={0,0,0,0};
+float left_num=0;
+float right_num=0;
+bool has_float=0;
+bool has_left=0;
 char op='?';
 int num[2]={0,0};
 int n_index=0;
+
 void reset(){
   left_num=0;
   right_num=0;
-  is_left=1;
-  has_op=0;
+  has_left=0;
   op='?';
   num[0]=0;
   num[1]=0;
   n_index=0;
+  for(int i=0;i<4;i++){
+    now[i]=0;
+  }
 }
+
+void print_now(){
+    for(int i=0;i<4;i++){
+      digitalWrite(col[i] , LOW);
+      for(int k=0; k<8 ;k++){           
+        digitalWrite(row[k],TAB[now[i]]>>k & 0x01);
+      }
+      delay(5);
+      digitalWrite(col[i] , HIGH);
+    }
+    //Serial.println(c); 
+}
+
 void calculate(){
   switch(op){
     case '+';
@@ -74,28 +83,52 @@ void calculate(){
       break;
   }  
 }
+
+void prompt(){
+  for(int i=0;i<4;i++){
+    now[i]=0;
+  }
+}
+
 void input(char c){
   if(c>='0'&&c<='9'){
+    // 如果是數字
     if(n_index==2){
+      // 超過輸入範圍
       prompt();
       reset();
+      return;
     }
     num[n_index++]=c-'0';
+    if(n_index==2){
+      float temp=num[0];
+      num[0]=num[1];
+      num[1]=num[0];
+    }
+    now[0]=num[0];
+    now[1]=num[1];
+    now[2]=0;// change to null
+    now[3]=0;
+    if(has_left){
+      right_num=num[0]+num[1]*10;  
+    }
+    else{
+      left_num=num[0]+num[1]*10;
+    }
   }
   else {
-    if(n_index==0){
+    // 如果是運算元
+    if(n_index==0&&!has_left){
+      // 此運算元前面沒有數字
       prompt();
       reset();
+      return;
     }
-    else {
-      if(is_left){
-        left_num=num[0]*10+num[1];  
-      }else{
-        right_num=num[0]*10+num[1];  
-      }
-      num[0]=0;
-      num[1]=0;
+    else{
+      has_left=true;
     }
+    num[0]=0;//change to null
+    num[1]=0;
     n_index=0;
     switch(c)
     {
@@ -103,43 +136,35 @@ void input(char c){
         reset();
         break;
       case '+';
-        if(has_op){
+        if(op!='?'){
           prompt();
           reset();
           return;
         }
-        has_op=1;
-        is_left=0;
         op='+';
         break;
       case '-';
-        if(has_op){
+        if(op!='?'){
           prompt();
           reset();
           return;
         }
-        has_op=1;
-        is_left=0;
         op='-';
         break;
       case '*';
-        if(has_op){
+        if(op!='?'){
           prompt();
           reset();
           return;
         }
-        has_op=1;
-        is_left=0;
         op='*';
         break;
       case '/';
-        if(has_op){
+        if(op!='?'){
           prompt();
           reset();
           return;
         }
-        has_op=1;
-        is_left=0;
         op='/';
         break;
       case '=';
