@@ -15,7 +15,14 @@ Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS
 int col[]={47,49,51,53};//右到左
 int row[]={38,40,42,44,46,48,50,52};
 int TAB[]={0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82,0xF8,
-    0x80,0x90,0x88,0x83,0xC6,0xA1,0x86,0x8E,0xC0,0x89}; 
+    0x80,0x90,0x88,0x83,0xC6,0xA1,0x86,0x8E,0xC0,0x89,0xBF,0x86,0xAF,
+    0x40,0x79,0x24,0x30,0x19,0x12,0x02,0x78,0x00,0x10,0xFF
+    }; 
+    // 18='-'
+    // 19='E'
+    // 20='r'
+    // 21~31=0.~9.
+    // 32=null
 
 void setup() 
 {
@@ -33,7 +40,7 @@ void setup()
   }  
 }
 
-int now[4]={0,0,0,0};
+int now[4]={18,18,18,18};
 float left_num=0;
 float right_num=0;
 bool has_float=0;
@@ -51,7 +58,7 @@ void reset(){
   num[1]=0;
   n_index=0;
   for(int i=0;i<4;i++){
-    now[i]=0;
+    now[i]=18;
   }
 }
 
@@ -67,27 +74,85 @@ void print_now(){
     //Serial.println(c); 
 }
 
+void overflowrr(){
+  now[0]=20;
+  now[1]=20;
+  now[2]=20;
+  now[3]=0;
+  for(int i=0;i<30;i++){
+    print_now();  
+  }    
+  
+}
+
+void error(){
+  now[0]=20;
+  now[1]=20;
+  now[2]=20;
+  now[3]=19;
+  for(int i=0;i<30;i++){
+    print_now();  
+  }    
+}
+
+
+void set_now(){
+    if(left_num<-999||left_num>9999){
+      // overflow
+      overflowrr();
+      reset();
+      return;  
+    }
+    now[0]=0;
+    now[1]=0;
+    now[2]=0;
+    now[3]=0;
+    int index=0;
+    bool is_negative=left_num<0;
+    int n=(is_negative)?-int(left_num):int(left_num);
+    float flo=left_num-int(left_num);
+    flo=(flo<0)?-flo:flo;
+    if(left_num!=int(left_num)){
+      // 有小數點
+      if(n>999){
+        overflowrr();
+        reset();
+        return;  
+      }
+      now[index++]=int(flo*10);
+      now[index++]=(n%10)+21;
+      n/=10;
+    }
+    while(n>0){
+      now[index++]=n%10;
+      n/=10;
+    }
+    if(is_negative){
+      if(index>3){
+        overflowrr();
+        reset();
+        return;  
+      }
+      now[index]=18;
+    }
+}
+
 void calculate(){
   switch(op){
-    case '+';
+    case '+':
       left_num+=right_num;
       break;
-    case '-';
+    case '-':
       left_num-=right_num;
       break;
-    case '*';
+    case '*':
       left_num*=right_num;
       break;
-    case '/';
+    case '/':
       left_num/=right_num;
       break;
   }  
-}
-
-void prompt(){
-  for(int i=0;i<4;i++){
-    now[i]=0;
-  }
+  set_now();
 }
 
 void input(char c){
@@ -95,7 +160,7 @@ void input(char c){
     // 如果是數字
     if(n_index==2){
       // 超過輸入範圍
-      prompt();
+      error();
       reset();
       return;
     }
@@ -103,7 +168,7 @@ void input(char c){
     if(n_index==2){
       float temp=num[0];
       num[0]=num[1];
-      num[1]=num[0];
+      num[1]=temp;
     }
     now[0]=num[0];
     now[1]=num[1];
@@ -118,9 +183,9 @@ void input(char c){
   }
   else {
     // 如果是運算元
-    if(n_index==0&&!has_left){
+    if((n_index==0)&&(!has_left)){
       // 此運算元前面沒有數字
-      prompt();
+      error();
       reset();
       return;
     }
@@ -132,42 +197,22 @@ void input(char c){
     n_index=0;
     switch(c)
     {
-      case 'R';
+      case 'R':
         reset();
         break;
-      case '+';
-        if(op!='?'){
-          prompt();
-          reset();
-          return;
-        }
+      case '+':
         op='+';
         break;
-      case '-';
-        if(op!='?'){
-          prompt();
-          reset();
-          return;
-        }
+      case '-':
         op='-';
         break;
-      case '*';
-        if(op!='?'){
-          prompt();
-          reset();
-          return;
-        }
+      case '*':
         op='*';
         break;
-      case '/';
-        if(op!='?'){
-          prompt();
-          reset();
-          return;
-        }
+      case '/':
         op='/';
         break;
-      case '=';
+      case '=':
         calculate();
     }
   }
