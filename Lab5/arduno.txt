@@ -48,7 +48,7 @@ void print_(bool matrix[8][8]){
       digitalWrite(r[i], matrix[i][j]);
     }
     digitalWrite(com[j],0);
-    delay(5);
+    delay(delay_t);
     digitalWrite(com[j],1);
   }
 }
@@ -68,22 +68,22 @@ void setup() {
 }
 void loop() {
     int timer=0;
-    while(timer<10){
+    while(timer<50){
       timer++;
       print_(matrix_1);
     }
     timer=0;
-    while(timer<10){
+    while(timer<50){
       timer++;
       print_(matrix_2);
     }
     timer=0;
-    while(timer<10){
+    while(timer<50){
       timer++;
       print_(matrix_3);
     }
     timer=0;
-    while(timer<10){
+    while(timer<50){
       timer++;
       print_(matrix_4);
     }
