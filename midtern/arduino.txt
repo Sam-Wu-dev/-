@@ -1,0 +1,130 @@
+#include <Keypad.h> //keypad
+#include <time.h> 
+#define buzzer_pin 3
+int matrix_com[4]={53,51,49,47};
+int matrix_row[4]={22,24,26,28}; 
+byte  keyboard_com[4]={29,27,25,23};
+byte  keyboard_row[4]={37,35,33,31};
+int seven_com[4]={8,9,10,11};
+int seven_row[8]={38,40,42,44,46,48,50,52};
+char hexaKeys[4][4] ={ 
+  {'a','b','c','d'},
+  {'e','f','g','h'},
+  {'i','j','k','l'},
+  {'m','n','o','p'} 
+};
+Keypad customKeypad = Keypad( makeKeymap(hexaKeys), keyboard_row, keyboard_com, 4, 4);
+bool matrix[4][4]={
+  {1,1,1,1},
+  {1,1,1,1},
+  {1,1,1,1},
+  {1,1,1,1}
+};
+int TAB[]={
+  0xC0,0xF9,0xA4,0xB0,0x99,0x92,0x82
+  ,0xF8,0x80,0x90,0xBF}; 
+void print_matrix(bool matrix[4][4]){
+  for (int j = 0 ; j < 4; j++){
+    for (int i = 0; i < 4; i++){
+      digitalWrite(matrix_row[i], matrix[i][j]);
+    }
+    digitalWrite(matrix_com[j],0);
+    delay(1);
+    digitalWrite(matrix_com[j],1);
+  }
+}
+int now_time=0;
+char recorder[100];
+int now_matrix_c=0;
+int now_matrix_r=0;
+int now[4]={10,10,10,0};
+int now_index=0;
+void set_now_timer(){
+  int temp=now_time;
+  int i=3;
+  while(temp>0){
+    now[i--]=temp%10;
+    temp/=10;
+  }  
+}
+void get_random_matrix(){
+  matrix[now_matrix_r][now_matrix_c]=1;
+  int x=rand()%16;
+  now_matrix_c=x%4;
+  now_matrix_r=x/4;
+  matrix[now_matrix_r][now_matrix_c]=0;
+  recorder[now_time]=hexaKeys[now_matrix_r][now_matrix_c];
+  set_now_timer();
+}
+void setup() {
+  srand( 1 );
+  Serial.begin(9600);// 設定Serial Monitor的傳輸鮑率
+  for(int i=0;i<=3;i++)//  設定 4*4 dot matrix    
+  {
+    pinMode(matrix_com[i],OUTPUT);
+    digitalWrite(matrix_com[i],1);
+    pinMode(matrix_row[i],OUTPUT);
+    digitalWrite(matrix_row[i],1);
+  }
+  for(int i = 0;i <4;i++)// 設定7段顯示器
+  {
+    pinMode(seven_com[i],OUTPUT);
+    digitalWrite(seven_com[i],HIGH);
+  }
+  for(int j =0;j <8;j++)// 設定7段顯示器
+  { 
+    pinMode(seven_row[j],OUTPUT);
+    digitalWrite(seven_row[j],HIGH);
+  }
+  get_random_matrix(); 
+}
+void print_times(){
+    for(int i=0;i<4;i++){
+      digitalWrite(seven_com[i] , LOW);
+      for(int k=0; k<8 ;k++){           
+        digitalWrite(seven_row[k],TAB[now[i]]>>k & 0x01);
+      }
+      delay(5);
+      digitalWrite(seven_com[i] , HIGH);
+    }
+    //Serial.println(c); 
+}
+void lose(){
+  reset();  
+}
+void reset(){
+  now_time=0;
+  matrix[now_matrix_r][now_matrix_c]=1;
+  now_matrix_c=0;
+  now_matrix_r=0;
+  now[0]=10;
+  now[1]=10;
+  now[2]=10;
+  now[3]=0;
+  now_index=0;
+  get_random_matrix();
+}
+void succeed(){
+  
+}
+void input(char customKey){
+  if(recorder[now_index++]!=customKey){
+      lose();
+      return;
+  }
+  if(now_index>now_time){
+    now_time++;
+    now_index=0;
+    succeed();
+    get_random_matrix();
+  }
+}
+void loop() {
+    print_times();
+    print_matrix(matrix);
+    char customKey = customKeypad.getKey();
+    if(customKey)
+    {
+      input(customKey);
+    }  
+}
