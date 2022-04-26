@@ -13,6 +13,7 @@ char hexaKeys[4][4] ={
   {'i','j','k','l'},
   {'m','n','o','p'} 
 };
+int frequency=220;
 int sound_effect[16]={261,293,329,349,392,440,493,523,587,659,698,783,880,987,1046,1174};//C4~D6
 Keypad customKeypad = Keypad( makeKeymap(hexaKeys), keyboard_row, keyboard_com, 4, 4);
 bool matrix[4][4]={
@@ -91,9 +92,13 @@ void print_times(){
     //Serial.println(c); 
 }
 void lose(){
+  tone(buzzer_pin,220,300);
+  delay(300);
+  tone(buzzer_pin,110,300);
   reset();  
 }
 void reset(){
+  frequency=220;
   now_time=0;
   matrix[now_matrix_r][now_matrix_c]=1;
   now_matrix_c=0;
@@ -105,18 +110,17 @@ void reset(){
   now_index=0;
   get_random_matrix();
 }
-void succeed(){
-  
-}
 void input(char customKey){
   if(recorder[now_index++]!=customKey){
       lose();
       return;
   }
+  tone(buzzer_pin,frequency,300);
+  frequency+=100;
   if(now_index>now_time){
+    frequency=220;
     now_time++;
     now_index=0;
-    succeed();
     get_random_matrix();
   }
 }
